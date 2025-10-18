@@ -1,4 +1,4 @@
-import { CookieClient } from "http-cookie-agent/undici";
+import { CookieAgent } from "http-cookie-agent/undici";
 import { existsSync } from "node:fs";
 import { mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
@@ -20,8 +20,8 @@ import { getCode } from "./util/getCode";
 import { importData } from "./util/importData";
 import { writeToFile } from "./util/writeToFile";
 
-const factory = (origin: import("url").URL, opts: object): CookieClient =>
-	new CookieClient(origin, {
+const factory = (opts: object): CookieAgent =>
+	new CookieAgent({ 
 		...opts,
 		cookies: { jar: new CookieJar() },
 	});

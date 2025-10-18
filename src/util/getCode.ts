@@ -23,7 +23,7 @@ export const getCode = async (credentials: Credentials) => {
 		interceptors.retry(),
 		interceptors.redirect({ maxRedirections: 3 }),
 	);
-	const url = (await request(link.url, { dispatcher, maxRedirections: 0 }))
+	const url = (await request(link.url, { dispatcher }))
 		.headers.location;
 
 	ok(typeof url === "string", "Invalid login url");

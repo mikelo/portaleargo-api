@@ -10,12 +10,16 @@
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"scripts": {
-		"build": "tsup && tsc",
-		"lint": "eslint src --fix",
+		"build": "tsup && tsc && next build",
+		"lint": "eslint",
 		"prettier": "prettier --write src/**/*.ts",
 		"test": "npm run test:cli && cross-env NODE_ENV=development tsup && node --enable-source-maps dist/_test.js",
 		"test:cli": "eslint src && tsc --noEmit",
-		"postinstall": "npm run build"
+		"postinstall": "npm run build",
+		"compiti": "npx tsx src/compiti-endpoint.ts",
+		"start": "next start",
+		"dev:fastify": "ts-node compiti.ts",
+		"dev": "NODE_OPTIONS='--inspect' next dev --turbopack -H 0.0.0.0"
 	},
 	"repository": {
 		"type": "git",
@@ -31,14 +35,30 @@
 		"node": ">=18"
 	},
 	"dependencies": {
-		"http-cookie-agent": "^6.0.8",
+		"@types/express": "^5.0.3",
+		"assert": "^2.1.0",
+		"buffer": "^6.0.3",
+		"express": "^5.1.0",
+		"fs": "^0.0.1-security",
+		"graceful-fs": "^4.2.11",
+		"http-cookie-agent": "^7.0.2",
+		"next": "^15.5.4",
+		"nodemon": "^3.1.10",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
+		"stream-browserify": "^3.0.0",
 		"tough-cookie": "^5.1.2",
-		"undici": "^7.5.0"
+		"ts-node": "^10.9.2",
+		"undici": "^7.16.0",
+		"url": "^0.11.4",
+		"webpack": "^5.102.1"
 	},
 	"devDependencies": {
 		"@tsconfig/recommended": "^1.0.8",
 		"@tsconfig/strictest": "^2.0.5",
-		"@types/node": "^18.19.80",
+		"@types/node": "^18.19.130",
+		"@types/react": "^19.2.2",
+		"@types/react-dom": "^19.2.1",
 		"@typescript-eslint/eslint-plugin": "^8.26.1",
 		"@typescript-eslint/parser": "^8.26.1",
 		"cross-env": "^7.0.3",
@@ -47,7 +67,7 @@
 		"eslint-plugin-node": "^11.1.0",
 		"prettier": "^3.5.3",
 		"tsup": "^8.4.0",
-		"typescript": "^5.8.2"
+		"typescript": "^5.9.3"
 	},
 	"optionalDependencies": {
 		"ajv": "^8.17.1"

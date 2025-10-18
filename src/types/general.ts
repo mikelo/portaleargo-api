@@ -40,6 +40,7 @@ export type WriteData = {
 	login: APILogin["data"][number];
 	profile: APIProfilo["data"];
 	token: Token;
+	compiti: Json;
 };
 export type Credentials = {
 	/**
@@ -130,6 +131,8 @@ export type ClientOptions = Partial<
 		 * * Nota che il controllo dei dati viene fatto in maniera asincrona e non blocca o rallenta il processo
 		 */
 		noTypeCheck: boolean;
+
+		compiti: Json;
 	}
 >;
 export type Jsonify<T, D extends boolean = true> = [D, T] extends [

@@ -95,6 +95,7 @@ export abstract class BaseClient {
 
 	#ready = false;
 
+	compiti?: Json;
 	/**
 	 * @param options - Le opzioni per il client
 	 */
@@ -111,6 +112,7 @@ export abstract class BaseClient {
 		this.debug = options.debug ?? false;
 		this.version = options.version ?? defaultVersion;
 		this.headers = options.headers;
+		this.compiti = options.compiti;
 		if (options.dataProvider !== null) this.dataProvider = options.dataProvider;
 	}
 
@@ -634,6 +636,23 @@ export abstract class BaseClient {
 		return this.loginData;
 	}
 
+	async getCompiti() {
+		const data: { [key: string]: any[] } = {};
+
+		for (const item of this.dashboard?.registro ?? []) {
+			// if (new Date(item.datGiorno) > new Date()) {
+			if (item.compiti[0] && new Date(item.compiti[0].dataConsegna) > new Date()) {
+				const dataConsegna = item.compiti[0].dataConsegna;
+				if (!data[dataConsegna]) {
+					data[dataConsegna] = [];
+				}
+				data[dataConsegna].push(item.materia, item.compiti[0].compito);
+			} }
+		this.compiti = data;
+		void this.dataProvider?.write("compiti", this.compiti);
+		return this.compiti;
+};	
+
 	private async logToken(options: { oldToken: Token; isWhat?: boolean }) {
 		const res = await this.apiRequest<APIResponse>("logtoken", {
 			body: {
@@ -699,4 +718,5 @@ export abstract class BaseClient {
 	}
 
 	protected abstract getCode(): Promise<LoginLink & { code: string }>;
+
 }

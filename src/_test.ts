@@ -24,6 +24,7 @@ await Promise.allSettled([
 	client.getRicevimenti(),
 	client.getTasse(),
 	client.getVotiScrutinio(),
+	// client.apiRequest("get", "api/v1/registro/compiti"),
 	uid && client.getLinkAllegato(uid),
 ]);
 await client.logOut();
