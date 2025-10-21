@@ -651,7 +651,7 @@ export abstract class BaseClient {
 		this.compiti = data;
 		void this.dataProvider?.write("compiti", this.compiti);
 		return this.compiti;
-};	
+}	
 
 	private async logToken(options: { oldToken: Token; isWhat?: boolean }) {
 		const res = await this.apiRequest<APIResponse>("logtoken", {
