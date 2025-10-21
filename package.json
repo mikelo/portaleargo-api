@@ -16,7 +16,7 @@
 		"test": "npm run test:cli && cross-env NODE_ENV=development tsup && node --enable-source-maps dist/_test.js",
 		"test:cli": "eslint src && tsc --noEmit",
 		"postinstall": "npm run build",
-		"compiti": "npx tsx src/compiti-endpoint.ts",
+		"compiti": "npx tsx src/compiti.ts",
 		"start": "next start",
 		"dev:fastify": "ts-node compiti.ts",
 		"dev": "NODE_OPTIONS='--inspect' next dev --turbopack -H 0.0.0.0"
