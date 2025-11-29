@@ -7,7 +7,9 @@ WORKDIR /app
 COPY . .
 
 # Install dependencies
-RUN npm install --legacy-peer-deps
+RUN npm install --legacy-peer-deps && \
+    chgrp -R 0 /app && \
+    chmod -R g=u /app
 
 # Copy application files
 
