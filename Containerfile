@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/f43/nodejs22
+FROM node:22-slim
 
 # Set working directory
 WORKDIR /app
