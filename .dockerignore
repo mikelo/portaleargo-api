@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+.next/
+
+# Local data
+.argo/
+.env
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+*.swp
+*.swo
+
+# Documentation
+*.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+LICENSE
+
+# Demo files (not needed in container)
+demo-compiti.html
+
+# Test files
+src/**/*.test.ts
+src/**/*.spec.ts
+
+# Config files not needed in runtime
+.eslintrc.cjs
+.prettierrc
+tsconfig.tsbuildinfo

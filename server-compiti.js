@@ -3,7 +3,7 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { Client } from "./dist/index.js";
 
-const PORT = 3000;
+const PORT = 8080;
 
 // Create the client instance
 let client = null;
