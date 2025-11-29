@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portale Argo - Compiti</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .login-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .compiti-container {
+            display: none;
+        }
+
+        .compiti-container.show {
+            display: block;
+        }
+
+        .compito-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .compito-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .compito-date {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .compito-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #764ba2;
+        }
+
+        .compito-materia {
+            font-weight: 700;
+            color: #764ba2;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .compito-descrizione {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .no-compiti {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            margin-top: 20px;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Portale Argo - I Tuoi Compiti</h1>
+        
+        <div id="loginSection" class="login-form">
+            <h2 style="margin-bottom: 20px; color: #333;">Accedi</h2>
+            <div class="form-group">
+                <label for="schoolCode">Codice Scuola:</label>
+                <input type="text" id="schoolCode" placeholder="Es: RMIS12345">
+            </div>
+            <div class="form-group">
+                <label for="username">Nome Utente:</label>
+                <input type="text" id="username" placeholder="Il tuo nome utente">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="La tua password">
+            </div>
+            <button id="loginBtn" onclick="login()">Accedi e Carica Compiti</button>
+        </div>
+
+        <div id="status"></div>
+
+        <div id="compitiContainer" class="compiti-container"></div>
+    </div>
+
+    <script type="module">
+        // Note: This is a demo page. In a real implementation, you would need to:
+        // 1. Build the library and serve it
+        // 2. Use proper module bundling
+        // 3. Handle CORS issues
+        // 4. Implement proper security measures
+
+        let client = null;
+
+        window.login = async function() {
+            const schoolCode = document.getElementById('schoolCode').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const statusDiv = document.getElementById('status');
+            const loginBtn = document.getElementById('loginBtn');
+            const compitiContainer = document.getElementById('compitiContainer');
+
+            if (!schoolCode || !username || !password) {
+                showStatus('Compila tutti i campi!', 'error');
+                return;
+            }
+
+            loginBtn.disabled = true;
+            showStatus('Connessione in corso...', 'loading');
+
+            try {
+                // This is a simulation - in reality you would import and use the actual Client
+                // import { Client } from './dist/index.js';
+                
+                showStatus('Autenticazione...', 'loading');
+                
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Simulate getting compiti data
+                const mockCompiti = generateMockCompiti();
+                
+                showStatus('Compiti caricati con successo!', 'success');
+                displayCompiti(mockCompiti);
+                
+                document.getElementById('loginSection').style.display = 'none';
+                
+            } catch (error) {
+                showStatus('Errore: ' + error.message, 'error');
+                loginBtn.disabled = false;
+            }
+        };
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+            statusDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function displayCompiti(compiti) {
+            const container = document.getElementById('compitiContainer');
+            container.innerHTML = '';
+            
+            const dates = Object.keys(compiti).sort();
+            
+            if (dates.length === 0) {
+                container.innerHTML = '<div class="no-compiti">🎉 Nessun compito in programma!</div>';
+            } else {
+                dates.forEach(date => {
+                    const card = document.createElement('div');
+                    card.className = 'compito-card';
+                    
+                    const dateHeader = document.createElement('div');
+                    dateHeader.className = 'compito-date';
+                    dateHeader.textContent = formatDate(date);
+                    card.appendChild(dateHeader);
+                    
+                    const items = compiti[date];
+                    for (let i = 0; i < items.length; i += 2) {
+                        const materia = items[i];
+                        const descrizione = items[i + 1];
+                        
+                        const item = document.createElement('div');
+                        item.className = 'compito-item';
+                        item.innerHTML = `
+                            <div class="compito-materia">${materia}</div>
+                            <div class="compito-descrizione">${descrizione}</div>
+                        `;
+                        card.appendChild(item);
+                    }
+                    
+                    container.appendChild(card);
+                });
+                
+                // Add logout button
+                const logoutBtn = document.createElement('button');
+                logoutBtn.className = 'logout-btn';
+                logoutBtn.textContent = 'Disconnetti';
+                logoutBtn.onclick = logout;
+                container.appendChild(logoutBtn);
+            }
+            
+            container.classList.add('show');
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('it-IT', options);
+        }
+
+        function logout() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('compitiContainer').classList.remove('show');
+            document.getElementById('status').style.display = 'none';
+            document.getElementById('loginBtn').disabled = false;
+            document.getElementById('schoolCode').value = '';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Generate mock data for demonstration
+        function generateMockCompiti() {
+            const today = new Date();
+            const compiti = {};
+            
+            // Add some sample homework
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            compiti[tomorrowStr] = [
+                'Matematica',
+                'Esercizi pagina 45-47, problemi dal n.1 al n.10',
+                'Italiano',
+                'Leggere capitoli 3-4 del libro "I Promessi Sposi" e preparare riassunto'
+            ];
+            
+            const nextWeek = new Date(today);
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            const nextWeekStr = nextWeek.toISOString().split('T')[0];
+            compiti[nextWeekStr] = [
+                'Storia',
+                'Studiare la Rivoluzione Francese (pagine 120-135)',
+                'Inglese',
+                'Completare esercizi di grammatica Unit 5'
+            ];
+            
+            return compiti;
+        }
+
+        // Show instructions on load
+        window.addEventListener('load', () => {
+            showStatus('⚠️ DEMO: Questa è una pagina dimostrativa. Inserisci credenziali qualsiasi per vedere un esempio.', 'loading');
+        });
+    </script>
+</body>
+</html>

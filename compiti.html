@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portale Argo - Compiti</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            background: white;
+        }
+
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .compiti-container {
+            display: none;
+        }
+
+        .compiti-container.show {
+            display: block;
+        }
+
+        .compito-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .compito-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .compito-date {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .compito-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #764ba2;
+        }
+
+        .compito-materia {
+            font-weight: 700;
+            color: #764ba2;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .compito-descrizione {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .no-compiti {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .info-box h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .info-box p {
+            color: #555;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Portale Argo - I Tuoi Compiti</h1>
+        
+        <div class="info-box">
+            <h2>Connessione Automatica</h2>
+            <p>Il server si connette automaticamente usando le credenziali dal file .env</p>
+            <p><strong>Variabili richieste:</strong> CODICE_SCUOLA, NOME_UTENTE, PASSWORD</p>
+        </div>
+
+        <div class="controls">
+            <button id="loadBtn" onclick="loadCompiti()">Carica Compiti</button>
+            <button id="refreshBtn" onclick="refreshCompiti()" style="display:none;">Aggiorna</button>
+        </div>
+
+        <div id="status"></div>
+
+        <div id="compitiContainer" class="compiti-container"></div>
+    </div>
+
+    <script>
+        let isLoaded = false;
+
+        async function loadCompiti() {
+            const statusDiv = document.getElementById('status');
+            const loadBtn = document.getElementById('loadBtn');
+            const refreshBtn = document.getElementById('refreshBtn');
+            const compitiContainer = document.getElementById('compitiContainer');
+
+            loadBtn.disabled = true;
+            showStatus('Caricamento in corso...', 'loading');
+
+            try {
+                const response = await fetch('/api/compiti');
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || 'Errore nel caricamento dei compiti');
+                }
+
+                showStatus('Compiti caricati con successo!', 'success');
+                displayCompiti(result.data);
+                
+                loadBtn.style.display = 'none';
+                refreshBtn.style.display = 'inline-block';
+                isLoaded = true;
+
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 3000);
+
+            } catch (error) {
+                showStatus('Errore: ' + error.message, 'error');
+                loadBtn.disabled = false;
+            }
+        }
+
+        async function refreshCompiti() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            refreshBtn.disabled = true;
+            showStatus('Aggiornamento in corso...', 'loading');
+
+            try {
+                const response = await fetch('/api/compiti');
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || 'Errore nell\'aggiornamento dei compiti');
+                }
+
+                showStatus('Compiti aggiornati!', 'success');
+                displayCompiti(result.data);
+
+                setTimeout(() => {
+                    document.getElementById('status').style.display = 'none';
+                }, 2000);
+
+            } catch (error) {
+                showStatus('Errore: ' + error.message, 'error');
+            } finally {
+                refreshBtn.disabled = false;
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+            statusDiv.style.display = 'block';
+        }
+
+        function displayCompiti(compiti) {
+            const container = document.getElementById('compitiContainer');
+            container.innerHTML = '';
+            
+            const dates = Object.keys(compiti).sort();
+            
+            if (dates.length === 0) {
+                container.innerHTML = '<div class="no-compiti">🎉 Nessun compito in programma!</div>';
+            } else {
+                dates.forEach(date => {
+                    const card = document.createElement('div');
+                    card.className = 'compito-card';
+                    
+                    const dateHeader = document.createElement('div');
+                    dateHeader.className = 'compito-date';
+                    dateHeader.textContent = formatDate(date);
+                    card.appendChild(dateHeader);
+                    
+                    const items = compiti[date];
+                    for (let i = 0; i < items.length; i += 2) {
+                        const materia = items[i];
+                        const descrizione = items[i + 1];
+                        
+                        const item = document.createElement('div');
+                        item.className = 'compito-item';
+                        item.innerHTML = `
+                            <div class="compito-materia">${escapeHtml(materia)}</div>
+                            <div class="compito-descrizione">${escapeHtml(descrizione)}</div>
+                        `;
+                        card.appendChild(item);
+                    }
+                    
+                    container.appendChild(card);
+                });
+            }
+            
+            container.classList.add('show');
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('it-IT', options);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Auto-load on page load
+        window.addEventListener('load', () => {
+            showStatus('Pronto per caricare i compiti', 'success');
+        });
+    </script>
+</body>
+</html>
