@@ -634,6 +634,22 @@ export abstract class BaseClient {
 		return this.loginData;
 	}
 
+	async getCompiti() {
+		const data: { [key: string]: any[] } = {};
+
+		for (const item of this.dashboard?.registro ?? []) {
+			// if (new Date(item.datGiorno) > new Date()) {
+			if (item.compiti[0] && new Date(item.compiti[0].dataConsegna) > new Date()) {
+				const dataConsegna = item.compiti[0].dataConsegna;
+				if (!data[dataConsegna]) {
+					data[dataConsegna] = [];
+				}
+				data[dataConsegna].push(item.materia, item.compiti[0].compito);
+			} }
+
+		return data;
+}	
+
 	private async logToken(options: { oldToken: Token; isWhat?: boolean }) {
 		const res = await this.apiRequest<APIResponse>("logtoken", {
 			body: {

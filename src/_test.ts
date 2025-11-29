@@ -18,6 +18,7 @@ await Promise.allSettled([
 				client.getStoricoBachecaAlunno(c.at(-1)!.pkScheda),
 			]),
 		),
+	client.getCompiti(),
 	client.getDettagliProfilo(),
 	client.getOrarioGiornaliero(),
 	client.getPCTOData(),
