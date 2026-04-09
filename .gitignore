@@ -6,3 +6,4 @@ dist/
 .vscode/settings.json
 ./types/
 tsconfig.tsbuildinfo
+build/
