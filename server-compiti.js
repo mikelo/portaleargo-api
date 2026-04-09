@@ -83,7 +83,7 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-	console.log(`Server running at http://localhost:${PORT}/`);
+	console.log(`Server running on port ${PORT}`);
 	console.log("Initializing client in background...");
 	initializeClient().then((success) => {
 		if (success) {
